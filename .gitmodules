@@ -1,0 +1,3 @@
+[submodule "zk"]
+	path = zk
+	url = https://github.com/heartysoft/vagrant-zk-exhbitor
