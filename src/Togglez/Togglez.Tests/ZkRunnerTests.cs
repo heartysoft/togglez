@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Text;
 using System.Threading;
 using NUnit.Framework;
@@ -11,7 +12,7 @@ namespace Togglez.Tests
     public class ZkRunnerTests
     {
         private ZooKeeper _zk;
-        private const string ConnectionString = "192.168.60.2:2181";
+        private static string ConnectionString = ConfigurationManager.AppSettings["zkConnection"];
         private const string Path = "/toggleztest";
 
         [Test]

@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Togglez.Tests")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Tests for Togglez client for Zookeeper based feature toggles")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("TTT Moneycorp Ltd.")]
-[assembly: AssemblyProduct("Togglez.Tests")]
-[assembly: AssemblyCopyright("Copyright © TTT Moneycorp Ltd. 2014")]
+[assembly: AssemblyCompany("Heartysoft Solutions Ltd.")]
+[assembly: AssemblyProduct("Togglez")]
+[assembly: AssemblyCopyright("Heartysoft Solutions Ltd. 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
