@@ -152,7 +152,7 @@ task build-nuget -depends compile {
 }
 
 task publish-nuget -depends build-nuget {
-	$pkgPath = Get-ChildItem -Path "$prod_dir\$nugetName" -Filter "*.nupkg" | select-object -first 1
-	exec { & "$prod_dir\.nuget\nuget.exe" push "$prod_dir\$nugetName\$pkgPath" }
-	ri "$prod_dir\$nugetName\$pkgPath"
+	#$pkgPath = Get-ChildItem -Path "$prod_dir\$nugetName" -Filter "*.nupkg" | select-object -first 1
+	#exec { & "$prod_dir\.nuget\nuget.exe" push "$prod_dir\$nugetName\$pkgPath" }
+	#ri "$prod_dir\$nugetName\$pkgPath"
 }

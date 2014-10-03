@@ -43,7 +43,6 @@ namespace Togglez
 
         public void Process(WatchedEvent @event)
         {
-            Console.WriteLine(@event);
             switch (@event.State)
             {
                 case KeeperState.SyncConnected:
