@@ -11,7 +11,6 @@ namespace Togglez.TestConsole
 {
     class Program 
     {
-        private ZooKeeper _zk;
         private string _path = "/testharness";
 
         static void Main(string[] args)

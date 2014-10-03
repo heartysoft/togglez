@@ -2,6 +2,8 @@
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using log4net;
+using log4net.Core;
 using Org.Apache.Zookeeper.Data;
 using Togglez.Internal;
 using ZooKeeperNet;
@@ -15,6 +17,8 @@ namespace Togglez
         private readonly TimeSpan _sessionTimeout;
         private ZooKeeper _zk;
         private readonly Internal.Togglez _togglez;
+
+        private static readonly ILog Logger = LogManager.GetLogger(typeof (ZkRunner));
 
         public static ZkRunnerBuilder New()
         {
@@ -32,9 +36,8 @@ namespace Togglez
 
         public Internal.Togglez Start()
         {
-            Console.WriteLine("[ZkRunner] starting runner." + DateTime.Now.Ticks);
+            Logger.InfoFormat("[ZkRunner] starting runner at {0}. Connection: {1}, Path: {2}, Timeout: {3}.", DateTime.Now.Ticks, _zkConnectionString, _path, _sessionTimeout);
             _zk = new ZooKeeper(_zkConnectionString, _sessionTimeout, this);
-            Console.WriteLine("[ZkRunner] runner started.");
             return _togglez;
         }
 
@@ -44,14 +47,14 @@ namespace Togglez
             switch (@event.State)
             {
                 case KeeperState.SyncConnected:
-                    Console.WriteLine("Connected");
+                    Logger.Info("[ZkRunner] Connected. Fetching data.");
                     connected();
                     break;
                 case KeeperState.Disconnected:
-                    Console.WriteLine("Disconnected");
+                    Logger.Info("[ZkRunner] Disconnected..safe to ignore. Will reconnect automatically.");
                     break;
                 case KeeperState.Expired:
-                    Console.WriteLine("Expired");
+                    Logger.Info("[ZkRunner] Expired. Creating another session.");
                     expired();
                     break;
             }
@@ -71,16 +74,15 @@ namespace Togglez
 
             try
             {
-                Console.WriteLine("[ZkRunner] fetching data");
                 var settings = _zk.GetData(_path, true, stat);
                 json = Encoding.UTF8.GetString(settings);
             }
             catch (KeeperException.NoNodeException)
             {
-                Console.WriteLine("[ZkRunner] Node not found.");
+                Logger.WarnFormat("[ZkRunner] Node {0} not found. Placing watch for node creation.", _path);
                 if (_zk.Exists(_path, true) != null)
                 {
-                    Console.WriteLine("[ZkRunner] Node exists...connecting...");
+                    Logger.InfoFormat("[ZkRunner] Node {0} exists...must have been created in the small window between Get and Exists. Fetching data.", _path);
                     connected();
                 }
 
@@ -105,6 +107,7 @@ namespace Togglez
         {
             if (disposing)
             {
+                Logger.Debug("Disposing.");
                 disposeZk();
             }
         }
