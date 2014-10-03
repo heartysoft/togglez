@@ -11,7 +11,8 @@ namespace Togglez.TestConsole
 {
     class Program 
     {
-        private string _path = "/testharness";
+        //need to create this setting in zk first. It should have a json payload with {foo:someInteger}.
+        private const string _path = "/testharness";
 
         static void Main(string[] args)
         {
@@ -32,6 +33,11 @@ namespace Togglez.TestConsole
             togglez.SubscribeOn<int>("foo", Console.WriteLine);
             Console.WriteLine(togglez.Get<int>("foo"));
 
+
+            //waiting synchronously is optional.
+            Console.WriteLine("Waiting for settings...");
+            togglez.WaitForFirstSettings(TimeSpan.FromSeconds(10));
+            Console.WriteLine("Got settings..."); 
 
             Console.ReadLine();
             zk.Dispose();

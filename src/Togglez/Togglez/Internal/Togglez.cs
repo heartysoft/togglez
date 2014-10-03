@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
 namespace Togglez.Internal
@@ -8,13 +10,15 @@ namespace Togglez.Internal
     {
         private readonly JObject _settings = new JObject();
         readonly Dictionary<string, List<ToggleSubscription>> _subscriptions = new Dictionary<string, List<ToggleSubscription>>(); 
-
+        private readonly TaskCompletionSource<bool> _initialSet = new TaskCompletionSource<bool>(); 
 
         readonly object _locker = new object();
         public void Set(string json)
         {
             lock (_locker)
             {
+                _initialSet.TrySetResult(true);
+
                 var notifyList = new List<string>();
                 
                 var newSettings = JObject.Parse(json);
@@ -73,6 +77,25 @@ namespace Togglez.Internal
 
             list.Add(new ToggleSubscription(typeof(T), x => handler((T)x)));
         }
+        public void WaitForFirstSettings(TimeSpan timeout)
+        {
+            waitForSettings(timeout,
+                _initialSet.Task.Wait((int)timeout.TotalMilliseconds));
+        }
+
+        public void WaitForFirstSettings(TimeSpan timeout, CancellationToken cancel)
+        {
+            waitForSettings(timeout, 
+                _initialSet.Task.Wait((int)timeout.TotalMilliseconds, cancel));
+        }
+
+        private void waitForSettings(TimeSpan timeout, bool waitResult)
+        {
+            if (!waitResult)
+            {
+                throw new SettingsNotReceivedWithinTimeoutException(timeout);
+            }
+        }
 
         private List<ToggleSubscription> getList(string toggle)
         {
@@ -86,6 +109,14 @@ namespace Togglez.Internal
             else list = _subscriptions[toggle];
 
             return list;
+        }
+
+        public class SettingsNotReceivedWithinTimeoutException : Exception
+        {
+            public SettingsNotReceivedWithinTimeoutException(TimeSpan timeout)
+                : base(string.Format("[Togglez] Did not receive initial settings within specified timeout {0}.", timeout))
+            {
+            }
         }
     }
 }
