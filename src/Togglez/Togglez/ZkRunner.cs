@@ -81,7 +81,9 @@ namespace Togglez
                 Logger.WarnFormat("[ZkRunner] Node {0} not found. Placing watch for node creation.", _path);
                 if (_zk.Exists(_path, true) != null)
                 {
-                    Logger.InfoFormat("[ZkRunner] Node {0} exists...must have been created in the small window between Get and Exists. Fetching data.", _path);
+                    Logger.InfoFormat(
+                        "[ZkRunner] Node {0} exists...must have been created in the small window between Get and Exists. Fetching data.",
+                        _path);
                     connected();
                 }
 
@@ -90,6 +92,11 @@ namespace Togglez
             catch (KeeperException.SessionExpiredException)
             {
                 expired();
+                return;
+            }
+            catch (KeeperException.ConnectionLossException)
+            {
+                Logger.Warn("[ZkRunner] Connection loss occured. This is a Zookeeper recoverable, and so no action taken.");
                 return;
             }
 
