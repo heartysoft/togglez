@@ -12,7 +12,7 @@ namespace Togglez.Tests
     public class ZkRunnerTests
     {
         private ZooKeeper _zk;
-        private static string ConnectionString = ConfigurationManager.AppSettings["zkConnection"];
+        private static readonly string ConnectionString = ConfigurationManager.AppSettings["zkConnection"];
         private const string Path = "/toggleztest";
 
         [Test]
@@ -27,7 +27,12 @@ namespace Togglez.Tests
         [Test]
         public void should_get_setting_on_start()
         {
-            var runner = new ZkRunner(Path, ConnectionString, TimeSpan.FromSeconds(1));
+            var runner = 
+                ZkRunner.New().Path(() => Path)
+                .ConnectionString(() => ConnectionString)
+                .SessionTimeout(() => TimeSpan.FromSeconds(1))
+                .Build();
+
             var client = runner.Start();
 
             var reset = new AutoResetEvent(false);

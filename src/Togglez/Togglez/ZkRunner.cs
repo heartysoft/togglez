@@ -16,7 +16,12 @@ namespace Togglez
         private ZooKeeper _zk;
         private readonly Internal.Togglez _togglez;
 
-        public ZkRunner(string path, string zkConnectionString, TimeSpan sessionTimeout)
+        public static ZkRunnerBuilder New()
+        {
+            return new ZkRunnerBuilder();
+        }
+
+        internal ZkRunner(string path, string zkConnectionString, TimeSpan sessionTimeout)
         {
             _path = path;
             _zkConnectionString = zkConnectionString;
