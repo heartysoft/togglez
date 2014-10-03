@@ -32,7 +32,9 @@ namespace Togglez
 
         public Internal.Togglez Start()
         {
+            Console.WriteLine("[ZkRunner] starting runner." + DateTime.Now.Ticks);
             _zk = new ZooKeeper(_zkConnectionString, _sessionTimeout, this);
+            Console.WriteLine("[ZkRunner] runner started.");
             return _togglez;
         }
 
@@ -42,11 +44,14 @@ namespace Togglez
             switch (@event.State)
             {
                 case KeeperState.SyncConnected:
+                    Console.WriteLine("Connected");
                     connected();
                     break;
                 case KeeperState.Disconnected:
+                    Console.WriteLine("Disconnected");
                     break;
                 case KeeperState.Expired:
+                    Console.WriteLine("Expired");
                     expired();
                     break;
             }
@@ -62,8 +67,30 @@ namespace Togglez
         private void connected()
         {
             var stat = new Stat();
-            var settings = _zk.GetData(_path, true, stat);
-            var json = Encoding.UTF8.GetString(settings);
+            string json;
+
+            try
+            {
+                Console.WriteLine("[ZkRunner] fetching data");
+                var settings = _zk.GetData(_path, true, stat);
+                json = Encoding.UTF8.GetString(settings);
+            }
+            catch (KeeperException.NoNodeException)
+            {
+                Console.WriteLine("[ZkRunner] Node not found.");
+                if (_zk.Exists(_path, true) != null)
+                {
+                    Console.WriteLine("[ZkRunner] Node exists...connecting...");
+                    connected();
+                }
+
+                return;
+            }
+            catch (KeeperException.SessionExpiredException)
+            {
+                expired();
+                return;
+            }
 
             _togglez.Set(json);
         }

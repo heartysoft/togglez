@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{D9F26B
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Togglez.TestConsole", "Togglez.TestConsole\Togglez.TestConsole.csproj", "{65E41DE9-7A79-465F-BDD4-D48FACB786A1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,6 +30,10 @@ Global
 		{0CB131D4-9B2B-4026-BBA6-4BCC17218646}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0CB131D4-9B2B-4026-BBA6-4BCC17218646}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0CB131D4-9B2B-4026-BBA6-4BCC17218646}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65E41DE9-7A79-465F-BDD4-D48FACB786A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65E41DE9-7A79-465F-BDD4-D48FACB786A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65E41DE9-7A79-465F-BDD4-D48FACB786A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65E41DE9-7A79-465F-BDD4-D48FACB786A1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

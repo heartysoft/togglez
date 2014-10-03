@@ -25,12 +25,12 @@ namespace Togglez.Tests
         }
 
         [Test]
-        public void should_get_setting_on_start()
+        public void should_get_setting_on_start_even_if_node_is_added_later()
         {
-            var runner = 
+            var runner =
                 ZkRunner.New().Path(() => Path)
                 .ConnectionString(() => ConnectionString)
-                .SessionTimeout(() => TimeSpan.FromSeconds(1))
+                .SessionTimeout(() => TimeSpan.FromSeconds(5))
                 .Build();
 
             var client = runner.Start();
@@ -40,18 +40,19 @@ namespace Togglez.Tests
             bool set = false;
             client.SubscribeOn<bool>("foo", x =>
             {
+                Console.WriteLine("[test] got update for foo");
                 set = x;
                 reset.Set();
             });
 
             setData("{foo:true}");
-
-            reset.WaitOne(TimeSpan.FromSeconds(2));
+            reset.WaitOne(TimeSpan.FromSeconds(10));
+            
             Assert.IsTrue(set);
 
             setData("{foo:false}");
+            reset.WaitOne(TimeSpan.FromSeconds(10));
 
-            reset.WaitOne(TimeSpan.FromSeconds(2));
             Assert.IsFalse(set);
 
             runner.Dispose();
@@ -74,11 +75,15 @@ namespace Togglez.Tests
         {
             try
             {
+                Console.WriteLine("[test] trying to create");
                 _zk.Create(Path, Encoding.UTF8.GetBytes(value), Ids.OPEN_ACL_UNSAFE, CreateMode.Ephemeral);
+                Console.WriteLine("Created");
             }
-            catch (KeeperException.NodeExistsException)
+            catch (Exception)
             {
+                Console.WriteLine("[test] already exists...setting data.");
                 _zk.SetData(Path, Encoding.UTF8.GetBytes(value), -1);
+                Console.WriteLine("data set");
             }
         }
 
