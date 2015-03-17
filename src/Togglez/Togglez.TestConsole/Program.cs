@@ -29,15 +29,23 @@ namespace Togglez.TestConsole
 
             var togglez = zk.Start();
 
+
+            //waiting synchronously is optional. however, Get<> calls will return nulls / defaults until settings are ready.
+            //using subscriptions where possible. subscriptions run on first connect, and everytime the path's value changes.
+            //you only need to subcribe to a single setting for any particular path. In the handler, you can use togglez.Get<>(..) to
+            //get the other values for the same path. 
+            //Get<> doesn't make a call to zk...it simply uses state that's already been fetched. As such, you either need to use
+            //a subscription, or wait for settings for one time init.
+            Console.WriteLine("Waiting for settings...");
+            togglez.WaitForFirstSettings(TimeSpan.FromSeconds(10));
+            Console.WriteLine("Got settings...");
+
             Console.WriteLine(togglez.Get<int>("foo"));
             togglez.SubscribeOn<int>("foo", Console.WriteLine);
             Console.WriteLine(togglez.Get<int>("foo"));
 
 
-            //waiting synchronously is optional.
-            Console.WriteLine("Waiting for settings...");
-            togglez.WaitForFirstSettings(TimeSpan.FromSeconds(10));
-            Console.WriteLine("Got settings..."); 
+            
 
             Console.ReadLine();
             zk.Dispose();

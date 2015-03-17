@@ -17,8 +17,6 @@ namespace Togglez.Internal
         {
             lock (_locker)
             {
-                _initialSet.TrySetResult(true);
-
                 var notifyList = new List<string>();
                 
                 var newSettings = JObject.Parse(json);
@@ -38,6 +36,7 @@ namespace Togglez.Internal
                 }
                 
                 _settings.Merge(newSettings);
+                _initialSet.TrySetResult(true);
 
                 foreach (var property in newSettings)
                 {
