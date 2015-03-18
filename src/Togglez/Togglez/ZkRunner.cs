@@ -2,8 +2,6 @@
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using log4net;
-using log4net.Core;
 using Org.Apache.Zookeeper.Data;
 using Togglez.Internal;
 using ZooKeeperNet;
@@ -17,8 +15,6 @@ namespace Togglez
         private readonly TimeSpan _sessionTimeout;
         private ZooKeeper _zk;
         private readonly Internal.Togglez _togglez;
-
-        private static readonly ILog Logger = LogManager.GetLogger(typeof (ZkRunner));
 
         public static ZkRunnerBuilder New()
         {
@@ -36,7 +32,6 @@ namespace Togglez
 
         public Internal.Togglez Start()
         {
-            Logger.InfoFormat("[ZkRunner] starting runner at {0}. Connection: {1}, Path: {2}, Timeout: {3}.", DateTime.Now.Ticks, _zkConnectionString, _path, _sessionTimeout);
             _zk = new ZooKeeper(_zkConnectionString, _sessionTimeout, this);
             return _togglez;
         }
@@ -46,14 +41,11 @@ namespace Togglez
             switch (@event.State)
             {
                 case KeeperState.SyncConnected:
-                    Logger.Info("[ZkRunner] Connected. Fetching data.");
                     connected();
                     break;
                 case KeeperState.Disconnected:
-                    Logger.Info("[ZkRunner] Disconnected..safe to ignore. Will reconnect automatically.");
                     break;
                 case KeeperState.Expired:
-                    Logger.Info("[ZkRunner] Expired. Creating another session.");
                     expired();
                     break;
             }
@@ -78,12 +70,8 @@ namespace Togglez
             }
             catch (KeeperException.NoNodeException)
             {
-                Logger.WarnFormat("[ZkRunner] Node {0} not found. Placing watch for node creation.", _path);
                 if (_zk.Exists(_path, true) != null)
                 {
-                    Logger.InfoFormat(
-                        "[ZkRunner] Node {0} exists...must have been created in the small window between Get and Exists. Fetching data.",
-                        _path);
                     connected();
                 }
 
@@ -96,7 +84,6 @@ namespace Togglez
             }
             catch (KeeperException.ConnectionLossException)
             {
-                Logger.Warn("[ZkRunner] Connection loss occured. This is a Zookeeper recoverable, and so no action taken.");
                 return;
             }
 
@@ -113,7 +100,6 @@ namespace Togglez
         {
             if (disposing)
             {
-                Logger.Debug("Disposing.");
                 disposeZk();
             }
         }
