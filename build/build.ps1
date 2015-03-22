@@ -6,10 +6,10 @@ $tests = "$prod.tests"
 $solution = "$prod.sln"
 $nugetName = 'Togglez'
 $nugetProj = 'Togglez.csproj'
+$base_dir = resolve-path .\..
 
 properties {
     $config= if($config -eq $null) {'Debug' } else {$config}
-    $base_dir = resolve-path .\..
     $source_dir = "$base_dir\src"
     $tools_dir = "$base_dir\tools"
     $env = "local"
@@ -21,6 +21,8 @@ properties {
     $package_dir = "$base_dir\deploy"
     $test_dir = "$out_dir\tests"
 }
+
+$assemblyInfo = gc "$base_dir\AssemblyInfo.pson" | Out-String | iex
 
 task local -depends prepare, tokenize-tests, test
 task default -depends local
@@ -45,7 +47,7 @@ task version -depends clean {
 	 
 	 $assemblyInfos = Get-ChildItem -Path $base_dir -Recurse -Filter AssemblyInfo.cs
 
-	 $assemblyInfo = gc "$base_dir\AssemblyInfo.pson" | Out-String | iex
+	 
 	 $version = $assemblyInfo.Version
 	 #$productName = $assemblyInfo.ProductName
 	 $companyName = $assemblyInfo.CompanyName
@@ -118,7 +120,7 @@ task build-nuget -depends mergedlls {
 	try{
 		Push-Location "$prod_dir\$nugetName"
 		#exec { & "$prod_dir\.nuget\NuGet.exe" "spec"}
-		exec { & "$prod_dir\.nuget\nuget.exe" pack $base_dir\nuget\Togglez.nuspec }
+		exec { & "$prod_dir\.nuget\nuget.exe" pack $base_dir\nuget\Togglez.nuspec -Version $assemblyInfo.Version -OutputDirectory $out_dir\$prod\ilmerged\ }
 	} finally{
 		Pop-Location
 		$assemblyInfos = Get-ChildItem -Path $base_dir -Recurse -Filter AssemblyInfo.cs
@@ -131,7 +133,7 @@ task build-nuget -depends mergedlls {
 }
 
 task publish-nuget -depends build-nuget {
-	$pkgPath = Get-ChildItem -Path "$prod_dir\$nugetName" -Filter "*.nupkg" | select-object -first 1
-	exec { & "$prod_dir\.nuget\nuget.exe" push "$prod_dir\$nugetName\$pkgPath" }
-	ri "$prod_dir\$nugetName\$pkgPath"
+	$pkgPath = Get-ChildItem -Path "$out_dir\$prod\ilmerged" -Filter "*.nupkg" | select-object -first 1
+	exec { & "$prod_dir\.nuget\nuget.exe" push "$out_dir\$prod\ilmerged\$pkgPath" }
+	ri "$out_dir\$prod\ilmerged\$pkgPath"
 }
