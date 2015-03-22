@@ -97,6 +97,12 @@ task tokenize-tests {
     }
 }
 
+task mergedlls -depends prepare {
+    mkdir "$out_dir\$prod\ilmerged"
+    exec {
+        & $tools_dir\ilmerge\tools\ilmerge.exe /internalize /out:$out_dir\$prod\ilmerged\Togglez.dll $out_dir\$prod\Togglez.dll $out_dir\$prod\ZooKeeperNet.dll $out_dir\$prod\log4net.dll $out_dir\$prod\Newtonsoft.Json.dll
+    }
+}
 
 task test {    
     $testassemblies = get-childitem "$test_dir\$tests" -recurse -include *tests*.dll
@@ -108,38 +114,11 @@ task test {
 
 task nuget -depends build-nuget, publish-nuget
 
-task build-nuget -depends compile {
-	$commitHashAndTimestamp = Get-GitCommitHashAndTimestamp
-    $commitHash = Get-GitCommitHash
-    $timestamp = Get-GitTimestamp
-    $branchName = Get-GitBranchOrTag
-	
-	$assemblyInfos = Get-ChildItem -Path $base_dir -Recurse -Filter AssemblyInfo.cs
-
-	$assemblyInfo = gc "$base_dir\AssemblyInfo.pson" | Out-String | iex
-	$version = $assemblyInfo.Version
-	#$productName = $assemblyInfo.ProductName
-	$companyName = $assemblyInfo.CompanyName
-	$copyright = $assemblyInfo.Copyright
-
-	try {
-       foreach ($assemblyInfo in $assemblyInfos) {
-           $path = Resolve-Path $assemblyInfo.FullName -Relative
-           #Write-Host "Patching $path with product information."
-           Patch-AssemblyInfo $path $Version $Version $branchName $commitHashAndTimestamp $companyName $copyright
-       }         
-    } catch {
-        foreach ($assemblyInfo in $assemblyInfos) {
-            $path = Resolve-Path $assemblyInfo.FullName -Relative
-            Write-Host "Reverting $path to original state."
-            & { git checkout --quiet $path }
-        }
-    }
-	
+task build-nuget -depends mergedlls {
 	try{
 		Push-Location "$prod_dir\$nugetName"
 		#exec { & "$prod_dir\.nuget\NuGet.exe" "spec"}
-		exec { & "$prod_dir\.nuget\nuget.exe" pack $nugetProj -IncludeReferencedProjects}
+		exec { & "$prod_dir\.nuget\nuget.exe" pack $base_dir\nuget\Togglez.nuspec }
 	} finally{
 		Pop-Location
 		$assemblyInfos = Get-ChildItem -Path $base_dir -Recurse -Filter AssemblyInfo.cs

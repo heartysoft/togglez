@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">    
+    <id>togglez</id>
+    <title>Togglez</title>
+    <version>$version$</version>
+    <authors>ashic</authors>
+    <owners>ashic</owners>
+    <summary>Feature toggle library using Zookeeper config.</summary>
+    <licenseUrl>https://raw.githubusercontent.com/heartysoft/togglez/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/heartysoft/togglez</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Feature toggle library using Zookeeper config.</description>
+    <copyright>Copyright © 2015 Heartysoft Solutions Limited</copyright>    
+    <tags>feature toggles zookeeper</tags>
+  </metadata>
+
+  <files>
+    <file src="..\out\Debug\togglez\ilmerged\Togglez.dll" target="lib/net45" />
+    <file src="..\out\Debug\togglez\ilmerged\Togglez.pdb" target="lib/net45" />
+  </files>
+</package>
