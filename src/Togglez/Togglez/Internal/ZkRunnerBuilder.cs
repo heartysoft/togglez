@@ -6,7 +6,8 @@ namespace Togglez.Internal
     {
         private Func<string> _path;
         private Func<string> _connectionString;
-        private Func<TimeSpan> _sessionTimeout; 
+        private Func<TimeSpan> _sessionTimeout;
+	    private Func<TogglezLogger> _logger = ()=> new NullLogger();
        
         public ZkRunnerBuilder Path(Func<string> path)
         {
@@ -26,13 +27,19 @@ namespace Togglez.Internal
             return this;
         }
 
+	    public ZkRunnerBuilder Logger(Func<TogglezLogger> logger)
+	    {
+		    _logger = logger;
+		    return this;
+	    }
+
         public ZkRunner Build()
         {
             check(_path, "Path");
             check(_connectionString, "ConnectionString");
             check(_sessionTimeout, "SessionTimeout");
 
-            return new ZkRunner(_path(), _connectionString(), _sessionTimeout());
+            return new ZkRunner(_path(), _connectionString(), _sessionTimeout(), _logger());
         }
 
         private void check(object target, string name)

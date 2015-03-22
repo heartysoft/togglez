@@ -10,33 +10,34 @@ using ZooKeeperNet;
 
 namespace Togglez
 {
-    public class ZkRunner : IWatcher, IDisposable
+	public class ZkRunner : IWatcher, IDisposable
     {
         private readonly string _path;
         private readonly string _zkConnectionString;
         private readonly TimeSpan _sessionTimeout;
-        private ZooKeeper _zk;
+		private readonly TogglezLogger _logger;
+		private ZooKeeper _zk;
         private readonly Internal.Togglez _togglez;
 
-        private static readonly ILog Logger = LogManager.GetLogger(typeof (ZkRunner));
 
         public static ZkRunnerBuilder New()
         {
             return new ZkRunnerBuilder();
         }
 
-        internal ZkRunner(string path, string zkConnectionString, TimeSpan sessionTimeout)
+        internal ZkRunner(string path, string zkConnectionString, TimeSpan sessionTimeout, TogglezLogger logger)
         {
             _path = path;
             _zkConnectionString = zkConnectionString;
             _sessionTimeout = sessionTimeout;
+	        _logger = logger;
 
-            _togglez = new Internal.Togglez();
+	        _togglez = new Internal.Togglez();
         }
 
         public Internal.Togglez Start()
         {
-            Logger.InfoFormat("[ZkRunner] starting runner at {0}. Connection: {1}, Path: {2}, Timeout: {3}.", DateTime.Now.Ticks, _zkConnectionString, _path, _sessionTimeout);
+            _logger.InfoFormat("[ZkRunner] starting runner at {0}. Connection: {1}, Path: {2}, Timeout: {3}.", DateTime.Now.Ticks, _zkConnectionString, _path, _sessionTimeout);
             _zk = new ZooKeeper(_zkConnectionString, _sessionTimeout, this);
             return _togglez;
         }
@@ -46,14 +47,14 @@ namespace Togglez
             switch (@event.State)
             {
                 case KeeperState.SyncConnected:
-                    Logger.Info("[ZkRunner] Connected. Fetching data.");
+                    _logger.Info("[ZkRunner] Connected. Fetching data.");
                     connected();
                     break;
                 case KeeperState.Disconnected:
-                    Logger.Info("[ZkRunner] Disconnected..safe to ignore. Will reconnect automatically.");
+                    _logger.Info("[ZkRunner] Disconnected..safe to ignore. Will reconnect automatically.");
                     break;
                 case KeeperState.Expired:
-                    Logger.Info("[ZkRunner] Expired. Creating another session.");
+                    _logger.Info("[ZkRunner] Expired. Creating another session.");
                     expired();
                     break;
             }
@@ -78,10 +79,10 @@ namespace Togglez
             }
             catch (KeeperException.NoNodeException)
             {
-                Logger.WarnFormat("[ZkRunner] Node {0} not found. Placing watch for node creation.", _path);
+                _logger.WarnFormat("[ZkRunner] Node {0} not found. Placing watch for node creation.", _path);
                 if (_zk.Exists(_path, true) != null)
                 {
-                    Logger.InfoFormat(
+                    _logger.InfoFormat(
                         "[ZkRunner] Node {0} exists...must have been created in the small window between Get and Exists. Fetching data.",
                         _path);
                     connected();
@@ -96,7 +97,7 @@ namespace Togglez
             }
             catch (KeeperException.ConnectionLossException)
             {
-                Logger.Warn("[ZkRunner] Connection loss occured. This is a Zookeeper recoverable, and so no action taken.");
+                _logger.Warn("[ZkRunner] Connection loss occured. This is a Zookeeper recoverable, and so no action taken.");
                 return;
             }
 
@@ -113,7 +114,7 @@ namespace Togglez
         {
             if (disposing)
             {
-                Logger.Debug("Disposing.");
+                _logger.Debug("Disposing.");
                 disposeZk();
             }
         }
