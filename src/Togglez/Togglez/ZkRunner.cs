@@ -2,10 +2,9 @@
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using log4net;
-using log4net.Core;
 using Org.Apache.Zookeeper.Data;
 using Togglez.Internal;
+using Togglez.Internal.Logging;
 using ZooKeeperNet;
 
 namespace Togglez
@@ -15,29 +14,28 @@ namespace Togglez
         private readonly string _path;
         private readonly string _zkConnectionString;
         private readonly TimeSpan _sessionTimeout;
-		private readonly TogglezLogger _logger;
 		private ZooKeeper _zk;
         private readonly Internal.Togglez _togglez;
 
+	    private static readonly ILog Logger = LogProvider.GetCurrentClassLogger();
 
         public static ZkRunnerBuilder New()
         {
             return new ZkRunnerBuilder();
         }
 
-        internal ZkRunner(string path, string zkConnectionString, TimeSpan sessionTimeout, TogglezLogger logger)
+        internal ZkRunner(string path, string zkConnectionString, TimeSpan sessionTimeout)
         {
             _path = path;
             _zkConnectionString = zkConnectionString;
             _sessionTimeout = sessionTimeout;
-	        _logger = logger;
 
 	        _togglez = new Internal.Togglez();
         }
 
         public Internal.Togglez Start()
         {
-            _logger.InfoFormat("[ZkRunner] starting runner at {0}. Connection: {1}, Path: {2}, Timeout: {3}.", DateTime.Now.Ticks, _zkConnectionString, _path, _sessionTimeout);
+            Logger.InfoFormat("[ZkRunner] starting runner at {0}. Connection: {1}, Path: {2}, Timeout: {3}.", DateTime.Now.Ticks, _zkConnectionString, _path, _sessionTimeout);
             _zk = new ZooKeeper(_zkConnectionString, _sessionTimeout, this);
             return _togglez;
         }
@@ -47,14 +45,14 @@ namespace Togglez
             switch (@event.State)
             {
                 case KeeperState.SyncConnected:
-                    _logger.Info("[ZkRunner] Connected. Fetching data.");
+                    Logger.Info("[ZkRunner] Connected. Fetching data.");
                     connected();
                     break;
                 case KeeperState.Disconnected:
-                    _logger.Info("[ZkRunner] Disconnected..safe to ignore. Will reconnect automatically.");
+                    Logger.Info("[ZkRunner] Disconnected..safe to ignore. Will reconnect automatically.");
                     break;
                 case KeeperState.Expired:
-                    _logger.Info("[ZkRunner] Expired. Creating another session.");
+                    Logger.Info("[ZkRunner] Expired. Creating another session.");
                     expired();
                     break;
             }
@@ -79,10 +77,10 @@ namespace Togglez
             }
             catch (KeeperException.NoNodeException)
             {
-                _logger.WarnFormat("[ZkRunner] Node {0} not found. Placing watch for node creation.", _path);
+                Logger.WarnFormat("[ZkRunner] Node {0} not found. Placing watch for node creation.", _path);
                 if (_zk.Exists(_path, true) != null)
                 {
-                    _logger.InfoFormat(
+                    Logger.InfoFormat(
                         "[ZkRunner] Node {0} exists...must have been created in the small window between Get and Exists. Fetching data.",
                         _path);
                     connected();
@@ -92,12 +90,13 @@ namespace Togglez
             }
             catch (KeeperException.SessionExpiredException)
             {
+                Logger.Warn("[ZkRunner] Session expired. This is a Zookeeper recoverable, and so no action taken.");
                 expired();
                 return;
             }
             catch (KeeperException.ConnectionLossException)
             {
-                _logger.Warn("[ZkRunner] Connection loss occured. This is a Zookeeper recoverable, and so no action taken.");
+                Logger.Warn("[ZkRunner] Connection loss occured. This is a Zookeeper recoverable, and so no action taken.");
                 return;
             }
 
@@ -114,7 +113,7 @@ namespace Togglez
         {
             if (disposing)
             {
-                _logger.Debug("Disposing.");
+                Logger.Debug("Disposing.");
                 disposeZk();
             }
         }
