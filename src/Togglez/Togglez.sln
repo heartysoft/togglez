@@ -3,16 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{F25F8948-7973-432A-AD5F-51BCBBABB8BB}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\paket.dependencies = ..\..\paket.dependencies
+	EndProjectSection
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Togglez.Tests", "Togglez.Tests\Togglez.Tests.csproj", "{09E8277A-EBCE-44BE-800A-72A1760BF575}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Togglez", "Togglez\Togglez.csproj", "{0CB131D4-9B2B-4026-BBA6-4BCC17218646}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{D9F26B61-F459-4393-A2F7-1BCDA2809A6D}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Togglez.TestConsole", "Togglez.TestConsole\Togglez.TestConsole.csproj", "{65E41DE9-7A79-465F-BDD4-D48FACB786A1}"
 EndProject
