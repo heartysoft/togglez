@@ -6,9 +6,9 @@ Feature toggling for .NET. Uses Zookeeper.
 
 ## build instructions
 
-git clone git@github.com:heartysoft/togglez.git
-./build.sh on OS-X/Linux
-./build.cmd on Windows
+    git clone git@github.com:heartysoft/togglez.git
+    ./build.sh on OS-X/Linux
+    ./build.cmd on Windows
 
 ## features
 
