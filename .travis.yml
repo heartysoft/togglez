@@ -1,2 +1,6 @@
 language: csharp
 solution: ./src/Togglez/Togglez.sln
+script:
+  - ./build.sh
+notifications:
+  slack: thrashingcode:APaL8WuJBKSYjkZYCeOLAAqq
