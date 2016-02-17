@@ -1,13 +1,20 @@
 togglez
 =======
+[![Build Status](https://travis-ci.org/adron-orange/togglez.svg?branch=master)](https://travis-ci.org/adron-orange/togglez)
 
 Feature toggling for .NET. Uses Zookeeper.
+
+## build instructions
+
+git clone git@github.com:heartysoft/togglez.git
+./build.sh on OS-X/Linux
+./build.cmd on Windows
 
 ## features
 
 * Use settings stored as JSON strings in Zookeeper.
 * Use values in Zookeeper with simple Get<>() methods.
-* Subscribe to changes; your handler gets called when the Zookeeper value is updated.
+* Subscribe to changes; your handler gets called whe1n the Zookeeper value is updated.
 * Option to wait synchronously until settings are first fetched. This can be useful in bootstrapping scenarios.
 * Uses Zookeeper underneath the hood.
 * Takes care of disconnects, reconnects, etc.
