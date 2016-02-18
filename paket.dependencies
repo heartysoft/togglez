@@ -1,0 +1,8 @@
+source https://www.nuget.org/api/v2/
+framework >= net45
+
+nuget FAKE
+nuget log4net 2.0.3
+nuget Newtonsoft.Json 6.0.5
+nuget NUnit 2.6.3
+nuget ZooKeeper.Net 3.4.6.0
