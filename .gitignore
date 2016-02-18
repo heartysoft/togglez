@@ -184,3 +184,7 @@ FakesAssemblies/
 
 # Get rid of OS-X Trash
 .DS_Store
+
+#Fake
+.fake/
+
